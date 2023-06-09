@@ -1,0 +1,49 @@
+.for-container{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    width: 100%;
+    margin-top: 120px;
+}
+.for{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    width: 100%;
+   
+
+}
+.for-container h1{
+    font-size: 8rem;
+    color: crimson;
+    
+}
+.for-container h1 {
+    position: relative;
+    animation-name: notfound ;
+    animation-duration: 2s;
+     animation: notfound 4s infinite;
+     margin:auto;
+  }
+  .for-container h2{
+    font-size: 2rem;
+    color: rgb(44 , 48 , 52);
+  }
+  
+  @keyframes notfound  {
+    0%   {left:0px; bottom:0px;}
+    50%  {left:0px; bottom:90px;}
+    100% {left:0px; bottom:0px;}
+  }
+  @media only screen and (max-width: 600px){
+    .for-container h1{
+      font-size: 7rem; 
+  }
+  .for-container h2{
+    font-size: 1.5rem;
+    color: rgb(44 , 48 , 52);
+  }
+
+  }

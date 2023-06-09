@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en" dir="rtl">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" href="%PUBLIC_URL%/logo.webp" />
+    <meta name="theme-color" content="#000000" />
+    <meta name="viewport" content="minimum-scale=1, initial-scale=1, width=device-width" />
+    <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
+    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+    <link rel="stylesheet" href="%PUBLIC_URL%/css/styles.css"/>
+    <title>React App</title>
+  </head>
+  <body>
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <div id="root"></div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+<script>
+
+    // 对不支持 WebSocket 和 MozWebSocket 的浏览器使用 sockjs 进行支持
+    //  if (!window.WebSocket && !window.MozWebSocket) {
+    //      document.write(
+    //             '<script src="../js/sockjs/sockjs.js"><\/script>')
+    // }
+
+    // 兼容低版本 IE
+    if (!window.JSON) {
+        document.write(
+                '<script src="../js/json/json3.min.js"><\/script>');
+    }
+    var stompClient;
+
+    window.onload = function () {
+
+        var interval;
+
+        var init = function () {
+            var socket;
+            //初始化 socket
+            // if (window.WebSocket) {
+            //     socket = new WebSocket("ws://" + window.location.host + "/websocket");
+            // } else if (window.MozWebSocket) {
+            //     socket = new MozWebSocket("ws://" + window.location.host + "/websocket");
+            // } else {
+                socket = new SockJS("https://api2.behpanel.com/websocket");
+         //   }
+            //初始化 stomp
+            stompClient = Stomp.over(socket);
+        };
+
+        var token = localStorage.token;
+        var connect = function () {
+            // stomp 连接
+            // client.connect(headers, connectCallback, errorCallback);
+            /*
+            var headers = {
+                login: 'mylogin',
+                passcode: 'mypasscode',
+                // additional header
+                'client-id': 'my-client-id'
+            };
+            */
+            stompClient.connect({'Authorization':token}, function (frame) {
+
+                if (interval) {
+                    console.info("已重连！");
+                    window.clearInterval(interval);
+                }
+
+                    // 订阅 '/user/user'
+                    stompClient.subscribe('/user/queue/message', function (frame) {
+                    var user = JSON.parse(frame.body);
+                    console.info(user);
+                    Toastify({
+  text: user.message,
+  duration: 100000000000,
+  newWindow: true,
+  close: true,
+  gravity: "top", // `top` or `bottom`
+  position: "right", // `left`, `center` or `right`
+  stopOnFocus: true, // Prevents dismissing of toast on hover
+  oldestFirst:true,
+  style: {
+    background: "linear-gradient(to right, #00b09b, #96c93d)",
+    width:"270px",
+    height:"50px",
+    display:"flex",
+    alignItems:"center",
+    justifyContent:"center"
+  },
+}).showToast();
+                });
+
+                // 订阅 '/topic/user'
+                stompClient.subscribe('/topic/user', function (frame) {
+                    var user = JSON.parse(frame.body);
+                    console.info(user);
+                });
+
+            
+
+            }, function (error) {
+                // 失去连接时进行重连
+                // 已经在重连就无需再执行了
+                if (!interval) {
+                    reconnect();
+                }
+            });
+        };
+
+        var reconnect = function () {
+            interval = window.setInterval(function () {
+                init();
+                connect();
+                console.info("正在尝试重连！");
+            }, 5000);
+        };
+
+        init();
+        connect();
+    };
+
+    function hello() {
+        stompClient.send("/app/hello", {}, JSON.stringify({"id": "1", "name": "jack"}));
+    }
+
+    function sendTo() {
+        stompClient.send("/app/sendTo/33");
+    }
+
+    function sendToUser() {
+        stompClient.send("/app/sendToUser/444");
+    }
+
+    function convertAndSend() {
+        stompClient.send("/app/convertAndSend/666");
+    }
+
+    function convertAndSendToUser() {
+        stompClient.send("/app/convertAndSendToUser/77");
+    }
+
+
+</script>
+  </body>
+</html>
